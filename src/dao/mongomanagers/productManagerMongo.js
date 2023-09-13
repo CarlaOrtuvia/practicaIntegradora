@@ -3,7 +3,7 @@ import  {productsModel}  from "../models/products.model.js"
   export default class ProductManager{
 
   
-    getProducts = async () => {
+    getAllProducts = async () => {
       try {
           return await productsModel.find().lean();
       } catch (err) {
@@ -12,7 +12,7 @@ import  {productsModel}  from "../models/products.model.js"
   }
 
 
-  getProductById = async (id) => {
+  getProductsById = async (id) => {
     try {
         return await productsModel.findById(id)
         
@@ -24,7 +24,7 @@ import  {productsModel}  from "../models/products.model.js"
 
 
 
-addProduct = async (product) => {
+createProducts = async (product) => {
   try {
       await productsModel.create(product);
       return await productsModel.findOne({ title: product.title })
@@ -37,7 +37,7 @@ addProduct = async (product) => {
       
     
 
-updateProduct = async (id, product) => {
+updateProducts = async (id, product) => {
   try {
       return await productsModel.findByIdAndUpdate(id, { $set: product });
   } catch (err) {
@@ -46,17 +46,8 @@ updateProduct = async (id, product) => {
 
 }
 
-    
-    //  updateProduct=async(id,obj)=>{
-    //      console.log(obj)
-    //     const productUpdated=await productsModel.updateOne({_id:id},obj)
-    //     return productUpdated
-    //   }
-
-
-      //DELETE
       
-      deleteProduct = async (id) => {
+      deleteProductsById = async (id) => {
         try {
             return await productsModel.findByIdAndDelete(id);
         } catch (err) {

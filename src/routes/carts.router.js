@@ -1,7 +1,5 @@
 import {Router} from "express"
 import { __dirname } from "../utils.js"
-// import CartManager from "../dao/filemanagers/controllers/cartManager.js"
-// const manager=new CartManager(__dirname+'/dao/filemanagers/db/carts.json')
 import CartManager from "../dao/mongomanagers/cartManagerMongo.js"
 import ProductManager from "../dao/mongomanagers/productManagerMongo.js"
 
@@ -13,12 +11,12 @@ const pm = new ProductManager()
 const router =Router()
 
 router.get("/carts",async(req,res)=>{
-   const carrito=await cm.getCarts()
+   const carrito=await cm.getAllCarts()
    res.json({carrito})
 })
 
 router.get("/carts/:cid",async(req,res)=>{
-    const carritofound=await cm.getCartbyId(req.params)
+    const carritofound=await cm.createCart(req.params)
     res.json({status:"success",carritofound})
 })
 
@@ -35,14 +33,14 @@ router.post('/carts', async (req, res) => {
       const validProducts = [];
 
       for (const product of obj) {
-          const checkId = await pm.getProductById(product._id);
+          const checkId = await pm.getProductsById(product._id);
           if (checkId === null) {
               return res.status(404).send(`Product with id ${product._id} not found`);
           }
           validProducts.push(checkId);
       }
 
-      const cart = await cm.addCart(validProducts);
+      const cart = await cm.createCart(validProducts);
       res.status(200).send(cart);
 
   } catch (err) {
@@ -61,12 +59,12 @@ router.post("/carts/:cid/products/:pid", async (req, res) => {
     const { quantity } = req.body;
   
     try {
-      const checkIdProduct = await pm.getProductById(pid);
+      const checkIdProduct = await pm.getProductsById(pid);
       if (!checkIdProduct) {
         return res.status(404).send({ message: `Product with ID: ${pid} not found` });
       }
   
-      const checkIdCart = await cm.getCartById(cid);
+      const checkIdCart = await cm.addProductToCart(cid);
       if (!checkIdCart) {
         return res.status(404).send({ message: `Cart with ID: ${cid} not found` });
       }

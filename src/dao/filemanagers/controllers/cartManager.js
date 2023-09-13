@@ -1,94 +1,89 @@
 import fs from "fs"
 
-  export default class CartManager{
-      constructor(path){
-          this.path=path
-        
-      }
-  
-    getCarts=async()=>{
-      try{
-        if(fs.existsSync(this.path)){
-          const cartlist= await fs.promises.readFile(this.path,"utf-8")
-          const cartlistparse=JSON.parse(cartlist)
-          return cartlistparse
-        }
-        else{
-          return  []
-          
-        }
-      }
-      catch(error)
-      {
-        throw new Error(error)
-      }
-    }
+export default class cartManager{
+  constructor(path){
+      this.path = path;
+  }
+  async #getMaxCartId() {
+      let maxCartId = 0;
+      const carts = await this.getAllCarts();
+      carts.forEach((cart) => {
+          if (cart.id > maxCartId) maxCartId = cart.id;
+      });
+      return maxCartId;
+  }
+  async createCart() {
+      try {
+          const cartId = await this.#getMaxCartId();
+          const newCart = {
+              id: cartId,
+              products: []
+          };
 
+          const carts = await this.getAllCarts();
+          carts.push(newCart);
 
-    getCartbyId=async(id)=>{
-      const{cid}=id
-      const allcarts=await this.getCarts()
-     const found=allcarts.find(element=>element.id===parseInt(cid))
-     if(found){
-      return found
-     }
-     else{
-    console.error("cart no encontrado")
-     }
+          await fs.promises.writeFile(this.path, JSON.stringify(carts));
+          return newCart;
+      } catch (error) {
+          console.log(error);
+      }
   }
 
-
-
-    //GENERATE ID 
-    generateCartId=async()=>{
-       if(fs.existsSync(this.path)){
-        const listadecarts=await this.getCarts()
-        const counter=listadecarts.length
-        if(counter==0){
-            return 1
-        }
-        else{
-            return (listadecarts[counter-1].id)+1
-        }
-       }
-    }
-    //CREATE
-    addCart=async()=>{
-      const listadecarts=await this.getCarts()
-            const id=await this.generateCartId()
-            const cartnew={
-                id,
-                products:[]
-            }
-            listadecarts.push(cartnew)
-            await fs.promises.writeFile(this.path,JSON.stringify(listadecarts,null,2))
-        }
-      
-    
-
-
-     //UPDATE
-     addProductToCart=async(cid,pid)=>{
-      const listaCarts = await this.getCarts();
-
-      const cart = listaCarts.find(e => e.id === cid);
-            
-               const productoIndex=cart.products.findIndex(element=>element.pid===pid)
-
-               if(productoIndex !==-1){
-                cart.products[productoIndex].quantity++;
-
-               }
-               else{
-                
-                cart.products.push({
-                 pid,
-                  quantity: 1
-                });
-               
-            
-               
-            }
-            await fs.promises.writeFile(this.path,JSON.stringify(listaCarts,null,2))
-        }
+  async getAllCarts() {
+      try {
+          if (fs.existsSync(this.path)) {
+              const carts = await fs.promises.readFile(this.path, "utf-8");
+              return JSON.parse(carts);
+          } else {
+              return [];
+          }
+      } catch (error) {
+          console.log(error);
+          return [];
+      }
   }
+
+  async getCartProducts(cartId) {
+      try {
+          const carts = await this.getAllCarts();
+          const cart = carts.find(cart => cart.id === cartId);
+
+          if (!cart) {
+              throw new Error(`Cart id ${cartId} not found`);
+          }
+
+          return cart.products;
+      } catch (error) {
+          console.log(error);
+          return [];
+      }
+  }
+
+  async addProductToCart(cartId, productId, quantity) {
+      try {
+          const carts = await this.getAllCarts();
+          const cartIndex = carts.findIndex(cart => cart.id === cartId);
+
+          if (cartIndex === -1) {
+              throw new Error(`Cart id ${cartId} not found`);
+          }
+
+          const product = {
+              id: productId,
+              quantity: parseInt(quantity)
+          };
+
+          const existingProductIndex = carts[cartIndex].products.findIndex(p => p.id === productId);
+          if (existingProductIndex !== -1) {
+           carts[cartIndex].products[existingProductIndex].quantity += product.quantity;
+          } else {
+              carts[cartIndex].products.push(product);
+          }
+
+          await fs.promises.writeFile(this.path, JSON.stringify(carts));
+      } catch (error) {
+          console.log(error);
+      }
+  }
+}

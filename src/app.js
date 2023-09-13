@@ -34,12 +34,11 @@ const httpServer=app.listen(PORT,()=>{
 
 const socketServer= new Server(httpServer)
 
-// import ProductManager from "./dao/filemanagers/controllers/productManager.js"
-// const pmanagersocket=new ProductManager(__dirname+"/dao/filemanagers/db/products.json")
+
 import ProductManager from "./dao/mongomanagers/productManagerMongo.js"
 const pmanagersocket=new ProductManager()
 
-// Importar MessagesManager
+
 import MessagesManager from "./dao/mongomanagers/messageManagerMongo.js";
 const messagesManager = new MessagesManager();
 
@@ -47,19 +46,19 @@ const messagesManager = new MessagesManager();
 
 socketServer.on("connection",async(socket)=>{
     console.log("client connected con ID:",socket.id)
-     const listadeproductos=await pmanagersocket.getProducts()
+     const listadeproductos=await pmanagersocket.getAllProducts()
     socketServer.emit("enviodeproducts",listadeproductos)
 
-    socket.on("addProduct",async(obj)=>{
+    socket.on("createProduct",async(obj)=>{
     await pmanagersocket.addProduct(obj)
-    const listadeproductos=await pmanagersocket.getProducts()
+    const listadeproductos=await pmanagersocket.getAllProducts()
     socketServer.emit("enviodeproducts",listadeproductos)
     })
 
-    socket.on("deleteProduct",async(id)=>{
+    socket.on("deleteProducts",async(id)=>{
         console.log(id)
-       await pmanagersocket.deleteProduct(id)
-        const listadeproductos=await pmanagersocket.getProducts({})
+       await pmanagersocket.deleteProductsById(id)
+        const listadeproductos=await pmanagersocket.getAllProducts({})
         socketServer.emit("enviodeproducts",listadeproductos)
         })
 
@@ -74,10 +73,10 @@ socketServer.on("connection",async(socket)=>{
            })
        
            socket.on("mensaje", async (info) => {
-            // Guardar el mensaje utilizando el MessagesManager
+           
             console.log(info)
             await messagesManager.createMessage(info);
-            // Emitir el mensaje a todos los clientes conectados
+           
             socketServer.emit("chat", await messagesManager.getMessages());
           });
     

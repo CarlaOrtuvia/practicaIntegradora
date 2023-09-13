@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 const productCollection="products"
 const productSchema= new mongoose.Schema({
     title: {
@@ -19,12 +20,7 @@ const productSchema= new mongoose.Schema({
     },
     thumbnail: {
         type: String,
-        required: false // Ahora el campo no es requerido
-    },
-    code: {
-        type: String,
-        unique: true, // Se asegura que el código sea único
-        required: true
+        required: false 
     },
     category: {
         type: String,
@@ -32,7 +28,7 @@ const productSchema= new mongoose.Schema({
     },
     status: {
         type: Boolean,
-        default: true // Establecemos el valor por defecto en true
+        default: true 
     }
 })
 

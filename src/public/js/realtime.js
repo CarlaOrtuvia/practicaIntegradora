@@ -55,7 +55,7 @@ form.addEventListener("submit", (evt) => {
   let thumbnail = form.elements.thumbnail.value;
   let category = form.elements.category.value;
   let price = form.elements.price.value;
-  let code = form.elements.code.value;
+  
 
   socketClient.emit("addProduct", {
     title,
@@ -64,7 +64,7 @@ form.addEventListener("submit", (evt) => {
     thumbnail,
     category,
     price,
-    code,
+    
   });
 
   form.reset();

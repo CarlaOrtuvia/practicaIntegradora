@@ -7,7 +7,7 @@ const pm = new ProductManager()
 class CartManager {
 
 
-    getCarts = async () => {
+    getAllCarts = async () => {
         try {
             const carts = await cartModel.find();
             return carts;
@@ -18,7 +18,7 @@ class CartManager {
     };
     
 
-    getCartById = async (cartId) => {
+    createCart = async (cartId) => {
         try {
             const cart = await cartModel.findById(cartId);
             return cart;
@@ -29,7 +29,7 @@ class CartManager {
     };
     
 
-    addCart = async (products) => {
+    getCartProducts = async (products) => {
         try {
             let cartData = {};
             if (products && products.length > 0) {
@@ -45,7 +45,7 @@ class CartManager {
     };
     
 
-    addProductInCart = async (cid, obj) => {
+    addProductToCart = async (cid, obj) => {
         try {
             const filter = { _id: cid, "products._id": obj._id };
             const cart = await cartModel.findById(cid);
